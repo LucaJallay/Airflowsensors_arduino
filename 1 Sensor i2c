@@ -1,0 +1,115 @@
+#include "Wire.h"
+#define addrs 0x6C // I2C bus address
+int P;
+int I;
+float T;
+
+int initialize(int i2c_addr)
+{
+  //INITIALIZATION AFTER POWER UP
+  Wire.beginTransmission(i2c_addr);
+  Wire.write(0x0B);  
+  Wire.write(0x00); 
+  int x = Wire.endTransmission(); 
+  return x;
+}
+
+int pressure(int i2c_addr)
+{
+  //MCU MODE
+  Wire.beginTransmission(i2c_addr);
+  Wire.write(0x00);   
+  Wire.write(0xD0);  // reg 0 - address register high byte 
+//  Wire.write(0x51);  // reg 1 - address register low byte
+  Wire.write(0x40);  // reg 1 - address register low byte
+  Wire.write(0x18);  // reg 2  - serial control register - indicate # bytes among others (page 7 bottom)
+  Wire.write(0x06);  // reg 3 - value to be written to SENS control register
+  int x = Wire.endTransmission(); 
+
+  delay(33);
+
+  //WRITE
+  Wire.beginTransmission(i2c_addr);
+  Wire.write(0x00);   
+  Wire.write(0xD0);
+  Wire.write(0x51);
+  Wire.write(0x2C);
+  x = Wire.endTransmission(); 
+  
+  //READ
+  Wire.beginTransmission(i2c_addr);
+  Wire.write(0x07);
+  x = Wire.endTransmission(); 
+
+  Wire.requestFrom(i2c_addr, 2);
+  byte hibyte = Wire.read();
+  byte lobyte = Wire.read();
+  long raw = word( hibyte, lobyte);  
+  //Serial.print("raw pressure:\t ");
+  //Serial.println(raw); 
+  
+  // D6F-PH5050AD3 ==> rangeMode=500 ==> int rd_pressure =  ((raw - 1024) * rangeMode * 2 / 60000L) - rangeMode
+  // D6F-PH0505AD3 ==> rangeMode=50  ==> int rd_pressure =  ((raw - 1024) * rangeMode * 2 / 60000L) - rangeMode
+  // D6F-PH0025AD1 ==> rangeMode=250 ==> int rd_pressure=(raw - 1024) * rangeMode / 60000L
+  int rangeMode = 50;
+  int rd_pressure =  ((raw - 1024) * rangeMode * 2 / 60000L) - rangeMode;
+  return rd_pressure;
+}
+
+float temperature(int i2c_addr)
+{
+  //MCU MODE
+  Wire.beginTransmission(i2c_addr);
+  Wire.write(0x00);   
+  Wire.write(0xD0);  // reg 0 - address register high byte 
+  // Wire.write(0x51);  // reg 1 - address register low byte
+  Wire.write(0x40);  // reg 1 - address register low byte  
+  Wire.write(0x18);  // reg 2  - serial control register - indicate # bytes among others (page 7 bottom)
+  Wire.write(0x06);  // reg 3 - value to be written to SENS control register
+  int x = Wire.endTransmission(); 
+
+  delay(33);
+  
+  //WRITE
+  Wire.beginTransmission(i2c_addr);
+  Wire.write(0x00);   
+  Wire.write(0xD0);
+  Wire.write(0x61);
+  Wire.write(0x2C);
+  x = Wire.endTransmission(); 
+  
+  //READ
+  Wire.beginTransmission(i2c_addr);
+  Wire.write(0x07);
+  x = Wire.endTransmission(); 
+
+  Wire.requestFrom(i2c_addr, 2);  
+  byte hibyte = Wire.read();
+  byte lobyte = Wire.read();
+  long raw = word( hibyte, lobyte);  
+  //Serial.print("raw temperature:\t ");
+  //Serial.println(raw); 
+  int temp = round((float)(raw - 10214) / 3.739);	// this is the temperature multiplied by 10...
+  return (temp/10.0); 						// ...and the function returs the float temperature with 0.1°C resolution
+}
+
+void setup()
+{  // Open serial communications 
+ Wire.begin();
+  Serial.begin(9600);
+ I=initialize (addrs); // start wire connection
+
+}
+
+void loop()
+{
+    P=pressure(addrs);
+    Serial.print("pressure:\t ");
+    Serial.println(P);
+    
+    T=temperature(addrs);
+    Serial.print("temperature:\t ");
+    Serial.println(T);
+    delay(1000); //delay for 1 seconds
+
+}

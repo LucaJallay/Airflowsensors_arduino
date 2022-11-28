@@ -1,0 +1,60 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include <Omron_D6FPH.h>
+
+Omron_D6FPH mySensor[8];
+
+
+
+#define TCAADDR 0x70
+
+void tcaselect(uint8_t i) {
+  if (i > 7) return;
+
+  Wire.beginTransmission(TCAADDR);
+  Wire.write(1 << i);
+  Wire.endTransmission();
+}
+
+void setup()
+{
+  Serial.begin(9600);
+  Serial.println( "The sketch has started");
+  Wire.begin();
+
+
+  for (int i = 0; i < 8; i++)
+  {
+    tcaselect(i);
+    mySensor[i].begin(MODEL_5050AD3);
+  }
+}
+
+void loop()
+
+{
+  for (int i = 0; i < 8; i++)                                       // Loop für alle Sensoren
+{
+    tcaselect(i);
+  float pressure = mySensor[i].getPressure();
+  if (isnan(pressure)) {
+    Serial.println("Error: Could not read pressure data");
+  } else {
+    Serial.print("Differential Pressure : sensor ");
+    Serial.println(i);
+    Serial.println(pressure);
+  }
+
+  float temperature = mySensor[i].getTemperature();
+  if (isnan(temperature)) {
+    Serial.println("Error: Could not read temperature data");
+  } else {
+    Serial.print("Temperature : sensor ");
+    Serial.println(i);
+    Serial.println(temperature);
+  }
+  }
+
+
+  delay(2000);
+}

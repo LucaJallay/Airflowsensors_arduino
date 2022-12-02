@@ -1,0 +1,26 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include <Omron_D6FPH.h>
+
+Omron_D6FPH mySensor;
+
+void setup() {
+  Serial.begin(115200);
+  // put your setup code here, to run once:
+  Wire.begin();
+  mySensor.begin();
+  mySensor.begin(MODEL_5050AD3);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+int pressure = mySensor.getPressure();
+Serial.println("Pressure: ");
+Serial.println(pressure);
+int temp = mySensor.getTemperature();
+Serial.println("Temperature: ");
+Serial.println(temp);
+
+delay(1000);
+}

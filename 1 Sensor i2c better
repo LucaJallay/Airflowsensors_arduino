@@ -17,10 +17,11 @@ void loop() {
 
 int pressure = mySensor.getPressure();
 Serial.println("Pressure: ");
-Serial.println(pressure);
-int temp = mySensor.getTemperature();
-Serial.println("Temperature: ");
-Serial.println(temp);
+Serial.println(pressure+500);                 //for D6F-PH0025AD2
+//Serial.println(pressure);                 //for D6F-PH5050AD4
+// int temp = mySensor.getTemperature();
+// Serial.println("Temperature: ");
+// Serial.println(temp);
 
 delay(1000);
 }

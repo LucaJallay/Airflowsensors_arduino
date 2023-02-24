@@ -8,7 +8,7 @@ Omron_D6FPH mySensor[16];
 #define TCAADDR2 0x71
 
 void tcaselect(uint8_t i) {
-  if (i > 15) return;
+  if (i > 16) return;
   if (i < 8) {
     Wire.beginTransmission(TCAADDR1);
     Wire.write(1 << i);
@@ -25,14 +25,14 @@ void setup() {
   Serial.println("The sketch has started");
   Wire.begin();
 
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < 17; i++) {
     tcaselect(i);
     mySensor[i].begin(MODEL_0505AD3);    //for the 0-50 Pa sensor
   }
 }
 
 void loop() {
-  for (int i = 0; i < 16; i++) {     // Loop für alle Sensoren
+  for (int i = 0; i < 17; i++) {     // Loop für alle Sensoren
     tcaselect(i);
     float pressure = mySensor[i].getPressure();
     if (isnan(pressure)) {

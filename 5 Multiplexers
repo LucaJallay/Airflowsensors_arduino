@@ -10,7 +10,7 @@ Omron_D6FPH mySensor[16];
 #define TCAADDR4 0x73
 #define TCAADDR5 0x74
 
-void tcaselect(uint8_t i) {
+void tcaselect(uint8_t i) {           //conditions to differentiate between the 5 multiplexers
   if (i > 16) return;
   if (i < 8) {
     Wire.beginTransmission(TCAADDR1);
@@ -37,7 +37,7 @@ void tcaselect(uint8_t i) {
 }
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); 
   Serial.println("The sketch has started");
   Wire.begin();
 
@@ -47,7 +47,7 @@ void setup() {
   }
 }
 
-void loop() {
+void loop() {                        // Counts from Sensor 0 to Sensor 7 on the first muxer, then from Sensor 8 to Sensor 15 on the second, etc.
   for (int i = 0; i < 41; i++) {     // Loop für alle Sensoren
     tcaselect(i);
     float pressure = mySensor[i].getPressure();

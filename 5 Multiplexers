@@ -30,7 +30,7 @@ void tcaselect(uint8_t i) {           //conditions to differentiate between the 
     Wire.write(1 << (i-24));
     Wire.endTransmission();
 } else{
-  Wire.beginTransmission(TCAADDR5);
+    Wire.beginTransmission(TCAADDR5);
     Wire.write(1 << (i-32));
     Wire.endTransmission();
 }
@@ -54,8 +54,9 @@ void loop() {                        // Counts from Sensor 0 to Sensor 7 on the 
     if (isnan(pressure)) {
       Serial.println("Error: Could not read pressure data");
     } else {
-      Serial.print("Differential Pressure : sensor ");
-      Serial.println(i);
+      Serial.print("Sensor ");
+      Serial.print(i);
+      Serial.print(" ");
       Serial.println(pressure);
     }
   }

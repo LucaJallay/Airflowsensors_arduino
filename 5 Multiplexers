@@ -1,28 +1,37 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <Omron_D6FPH.h>
-Omron_D6FPH mySensor[24];
+Omron_D6FPH mySensor[40];
 
 #define TCAADDR1 0x70
 #define TCAADDR2 0x71
-#define TCAADDR3 0x73
+#define TCAADDR3 0x72
+#define TCAADDR4 0x73
+#define TCAADDR5 0x74
 
 void tcaselect(uint8_t i) {
-  if (i < 0 || i > 23) return;
+  if (i < 0 || i > 40) return;
   
   uint8_t tcaaddr;
   uint8_t mux;
   
-  if (i < 8) {
+  if (i < 8) {                //with 9 the position 7 is read, otherwise not...
     tcaaddr = TCAADDR1;
     mux = i;
   } else if (i < 16) {
     tcaaddr = TCAADDR2;
     mux = i - 8;
-  } else {
+  } else if(i<24){
     tcaaddr = TCAADDR3;
     mux = i - 16;
+  } else if(i<32){
+    tcaaddr = TCAADDR4;
+    mux = i - 24;
+  } else{
+    tcaaddr = TCAADDR5;
+    mux = i - 32;
   }
+
   
   Wire.beginTransmission(tcaaddr);
   Wire.write(1 << mux);
@@ -34,14 +43,14 @@ void setup() {
   Serial.println("The sketch has started");
   Wire.begin();
 
-  for (int i = 0; i < 24; i++) {
+  for (int i = 0; i < 41; i++) {
     tcaselect(i);
     mySensor[i].begin(MODEL_0505AD3);    //for the 0-50 Pa sensor
   }
 }
 
 void loop() {
-  for (int i = 0; i < 24; i++) {
+  for (int i = 0; i < 41; i++) {
     tcaselect(i);
     float pressure = mySensor[i].getPressure();
     if (isnan(pressure)) {

@@ -53,15 +53,22 @@ void loop() {
   for (int i = 0; i < 41; i++) {
     tcaselect(i);
     float pressure = mySensor[i].getPressure();
+    float newpressure = 0;
     if (isnan(pressure)) {
       Serial.print("Error: Could not read pressure data from sensor ");
       Serial.println(i);
     } else {
+      for(int j=0; j<100; ++j){
+        newpressure=mySensor[i].getPressure();
+        pressure = pressure + newpressure;
+        newpressure = 0;
+      }
       Serial.print("Differential Pressure from sensor ");
       Serial.print(i);
       Serial.print(": ");
-      Serial.println(pressure);
+      Serial.println(pressure/100);
+      pressure = 0;
     }
   }
-  delay(1000);
+  //delay(1000);
 }
